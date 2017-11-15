@@ -13,13 +13,22 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.Toast;
+
+import com.levirgon.whereami.Retrofit.PlaceServiceProvider;
+import com.levirgon.whereami.event.ErrorEvent;
+import com.levirgon.whereami.event.NearbyPlacesEvent;
+import com.levirgon.whereami.model.ResultsItem;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,17 +46,65 @@ public class MainActivity extends AppCompatActivity {
     private Geocoder mGeocoder;
     private List<Address> mAddressList;
     private ProgressDialog progressDialog;
+    private PlaceServiceProvider mServiceProvider;
+    private int mRadius = 1000;
+    private FloatingActionButton locationButton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setupList();
-        progressDialog = new ProgressDialog(this);
-        mGeocoder = new Geocoder(this, Locale.getDefault());
-        requestPermission();
+        initiate();
+    }
 
+    private void initiate() {
+        locationButton = findViewById(R.id.location_access_button);
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reloadActivity();
+            }
+        });
+        setupCategoriesList();
+        if (isNetworkOnline(this)) {
+            mServiceProvider = new PlaceServiceProvider();
+            progressDialog = new ProgressDialog(this);
+            mGeocoder = new Geocoder(this, Locale.getDefault());
+            requestPermission();
+        } else {
+            Toast.makeText(this, "Please Turn On Network", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    private void reloadActivity() {
+        finish();
+        startActivity(getIntent());
+    }
+
+    public static boolean isNetworkOnline(Context con) {
+        boolean status;
+        try {
+            ConnectivityManager cm = (ConnectivityManager) con
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm != null ? cm.getNetworkInfo(0) : null;
+
+            if (netInfo != null && netInfo.getState() == NetworkInfo.State.CONNECTED) {
+                status = true;
+            } else {
+                assert cm != null;
+                netInfo = cm.getNetworkInfo(1);
+
+                status = netInfo != null && netInfo.getState() == NetworkInfo.State.CONNECTED;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return status;
     }
 
     private void getLocation() {
@@ -56,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestPermission() {
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -85,9 +141,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setupList() {
+    private void setupCategoriesList() {
         mCategoryList = findViewById(R.id.categories_list);
-        linearLayoutManager = new GridLayoutManager(this, 2);
+        linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mCategoryList.setLayoutManager(linearLayoutManager);
         mCategoryList.setItemAnimator(new DefaultItemAnimator());
         if (mAdapter == null) {
@@ -112,25 +168,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onItemSelected(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        mServiceProvider.requestPlaces(mCurrentLocation, mRadius, text);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (resultCode == RESULT_OK) {
             mCurrentLocation = data.getParcelableExtra("CURRENT_LOCATION");
-            Toast.makeText(this,"location returned",Toast.LENGTH_SHORT).show();
-            getLocationInformaton(mCurrentLocation);
+            locationButton.setVisibility(View.GONE);
+            getLocationInformation(mCurrentLocation);
         }
 
     }
 
-    private void getLocationInformaton(Location location) {
-
+    private void getLocationInformation(Location location) {
         try {
-            Toast.makeText(this,"getting address",Toast.LENGTH_SHORT).show();
             mAddressList = mGeocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             String address = mAddressList.get(0).getAddressLine(0);
             Toast.makeText(this, address, Toast.LENGTH_SHORT).show();
@@ -141,27 +195,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static boolean isNetworkOnline(Context con) {
-        boolean status;
-        try {
-            ConnectivityManager cm = (ConnectivityManager) con
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo netInfo = cm != null ? cm.getNetworkInfo(0) : null;
-
-            if (netInfo != null && netInfo.getState() == NetworkInfo.State.CONNECTED) {
-                status = true;
-            } else {
-                assert cm != null;
-                netInfo = cm.getNetworkInfo(1);
-
-                status = netInfo != null && netInfo.getState() == NetworkInfo.State.CONNECTED;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return status;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNearbyPlacesEvent(NearbyPlacesEvent event) {
+        //  mProgressBar.setVisibility(View.GONE);
+        List<ResultsItem> places = event.getPlaces();
+        //add the data to a list
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onErrorEvent(ErrorEvent event) {
+        String errorMessage = event.getErrorMessage();
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
 }

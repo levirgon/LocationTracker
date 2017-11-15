@@ -86,7 +86,6 @@ public class UserLocationActivity extends AppCompatActivity implements GoogleApi
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(this, "connection failed", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -97,15 +96,12 @@ public class UserLocationActivity extends AppCompatActivity implements GoogleApi
                     MY_LOCATION_ACCESS);
             // return;
         }
-        Toast.makeText(this, "connected", Toast.LENGTH_SHORT).show();
         startLocationUpdates();
         mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLocation == null) {
-            Toast.makeText(this, "no last known location", Toast.LENGTH_SHORT).show();
             startLocationUpdates();
         }
         if (mLocation != null) {
-            Toast.makeText(this, "location found", Toast.LENGTH_SHORT).show();
 
         } else {
             showActivationDialog();
@@ -113,7 +109,6 @@ public class UserLocationActivity extends AppCompatActivity implements GoogleApi
     }
 
     private void startLocationUpdates() {
-        Toast.makeText(this, "Starting Location Updates", Toast.LENGTH_SHORT).show();
 
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
@@ -123,7 +118,6 @@ public class UserLocationActivity extends AppCompatActivity implements GoogleApi
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_LOCATION_ACCESS);
-            Toast.makeText(this, "need activation", Toast.LENGTH_SHORT).show();
             showActivationDialog();
             return;
         }
@@ -181,20 +175,17 @@ public class UserLocationActivity extends AppCompatActivity implements GoogleApi
         final Status status = locationSettingsResult.getStatus();
         switch (status.getStatusCode()) {
             case LocationSettingsStatusCodes.SUCCESS:
-                Toast.makeText(this, "Result success", Toast.LENGTH_SHORT).show();
-                startLocationUpdates();
+               // startLocationUpdates();
                 break;
             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                Toast.makeText(this, "resolution required", Toast.LENGTH_SHORT).show();
                 try {
                     status.startResolutionForResult(this, MY_LOCATION_ACCESS);
-                    startLocationUpdates();
+                    //startLocationUpdates();
                 } catch (IntentSender.SendIntentException e) {
 
                 }
                 break;
             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                Toast.makeText(this, "result unavailable", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
