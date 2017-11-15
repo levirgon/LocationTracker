@@ -20,6 +20,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.levirgon.whereami.Retrofit.PlaceServiceProvider;
@@ -27,6 +29,7 @@ import com.levirgon.whereami.event.ErrorEvent;
 import com.levirgon.whereami.event.NearbyPlacesEvent;
 import com.levirgon.whereami.model.ResultsItem;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -40,15 +43,19 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int MY_LOCATION_ACCESS = 101;
     private RecyclerView mCategoryList;
+    private RecyclerView mPlacesList;
     private LinearLayoutManager linearLayoutManager;
     private CategoriesAdapter mAdapter;
+    private PlacesAdapter mPlacesAdapter;
     private Location mCurrentLocation;
     private Geocoder mGeocoder;
     private List<Address> mAddressList;
     private ProgressDialog progressDialog;
     private PlaceServiceProvider mServiceProvider;
-    private int mRadius = 1000;
+ //   private final int RADIUS = 3000;
     private FloatingActionButton locationButton;
+    private LinearLayout mLoadingLayout;
+    private TextView loadinTextView;
 
 
     @Override
@@ -59,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initiate() {
+        loadinTextView = findViewById(R.id.loading_text);
+        mLoadingLayout = findViewById(R.id.loading_group);
+        mLoadingLayout.setVisibility(View.GONE);
         locationButton = findViewById(R.id.location_access_button);
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,15 +77,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         setupCategoriesList();
+        setUpPlacesList();
+        mServiceProvider = new PlaceServiceProvider();
+        progressDialog = new ProgressDialog(this);
+        mGeocoder = new Geocoder(this, Locale.getDefault());
         if (isNetworkOnline(this)) {
-            mServiceProvider = new PlaceServiceProvider();
-            progressDialog = new ProgressDialog(this);
-            mGeocoder = new Geocoder(this, Locale.getDefault());
             requestPermission();
         } else {
             Toast.makeText(this, "Please Turn On Network", Toast.LENGTH_LONG).show();
         }
-
     }
 
     private void reloadActivity() {
@@ -108,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getLocation() {
+        mLoadingLayout.setVisibility(View.VISIBLE);
+        loadinTextView.setText("Getting Location");
         Intent locationIntent = new Intent(this, UserLocationActivity.class);
         startActivityForResult(locationIntent, 0);
     }
@@ -131,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case MY_LOCATION_ACCESS:
                 if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "This App requires Location ACCESS to work", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "This App requires PlaceLocation ACCESS to work", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
                     Toast.makeText(this, "permission Granted", Toast.LENGTH_SHORT).show();
@@ -167,8 +179,31 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.addAll(categories);
     }
 
+    private void setUpPlacesList() {
+
+        mPlacesList = findViewById(R.id.nearby_places_list);
+        linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mPlacesList.setLayoutManager(linearLayoutManager);
+        mPlacesList.setItemAnimator(new DefaultItemAnimator());
+
+
+        if (mPlacesAdapter == null) {
+            mPlacesAdapter = new PlacesAdapter(this);
+            mPlacesList.setAdapter(mPlacesAdapter);
+        } else {
+            mPlacesList.setAdapter(mPlacesAdapter);
+        }
+    }
+
     public void onItemSelected(String text) {
-        mServiceProvider.requestPlaces(mCurrentLocation, mRadius, text);
+        if (isNetworkOnline(this)) {
+            mPlacesAdapter.setCurrentLocation(mCurrentLocation);
+            mLoadingLayout.setVisibility(View.VISIBLE);
+            loadinTextView.setText("Loading Places");
+            mServiceProvider.requestPlaces(mCurrentLocation, "distance", text);
+        } else {
+            Toast.makeText(this, "Turn on Network", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -176,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
+            mLoadingLayout.setVisibility(View.GONE);
             mCurrentLocation = data.getParcelableExtra("CURRENT_LOCATION");
             locationButton.setVisibility(View.GONE);
             getLocationInformation(mCurrentLocation);
@@ -197,8 +233,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNearbyPlacesEvent(NearbyPlacesEvent event) {
-        //  mProgressBar.setVisibility(View.GONE);
+        mLoadingLayout.setVisibility(View.GONE);
         List<ResultsItem> places = event.getPlaces();
+        mPlacesAdapter.clear();
+        mPlacesAdapter.addAll(places);
         //add the data to a list
     }
 
@@ -208,4 +246,22 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
     }
 
+    public void onPlaceSelected(ResultsItem place) {
+        double lat = place.getGeometry().getPlaceLocation().getLat();
+        double lng = place.getGeometry().getPlaceLocation().getLng();
+
+        //use the location.
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
 }

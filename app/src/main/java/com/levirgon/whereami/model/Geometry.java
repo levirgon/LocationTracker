@@ -1,27 +1,28 @@
 package com.levirgon.whereami.model;
 
-import javax.annotation.Generated;
 import com.google.gson.annotations.SerializedName;
 
+import javax.annotation.Generated;
+
 @Generated("com.robohorse.robopojogenerator")
-public class Geometry{
+public class Geometry {
 
-	@SerializedName("location")
-	private Location location;
+    @SerializedName("location")
+    private PlaceLocation mPlaceLocation;
 
-	public void setLocation(Location location){
-		this.location = location;
-	}
+    public void setPlaceLocation(PlaceLocation placeLocation) {
+        this.mPlaceLocation = placeLocation;
+    }
 
-	public Location getLocation(){
-		return location;
-	}
+    public PlaceLocation getPlaceLocation() {
+        return mPlaceLocation;
+    }
 
-	@Override
- 	public String toString(){
-		return 
-			"Geometry{" + 
-			"location = '" + location + '\'' + 
-			"}";
-		}
+    @Override
+    public String toString() {
+        return
+                "Geometry{" +
+                        "mPlaceLocation = '" + mPlaceLocation + '\'' +
+                        "}";
+    }
 }

@@ -42,6 +42,7 @@ public class UserLocationActivity extends AppCompatActivity implements GoogleApi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         setupLocationServices();
         //startLocationUpdates();
         if (!isNetworkOnline(this))

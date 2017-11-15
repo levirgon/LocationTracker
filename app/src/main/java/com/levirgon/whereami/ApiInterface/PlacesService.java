@@ -16,7 +16,7 @@ public interface PlacesService {
     Call<Places> getPlacesAroundLocation(
             @Query("key") String api_key,
             @Query("location") String location,
-            @Query("radius") double radius,
+            @Query("rankby") String sortBy,
             @Query("type") String placeType
     );
 }

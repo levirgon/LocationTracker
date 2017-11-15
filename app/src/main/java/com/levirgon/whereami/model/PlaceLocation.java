@@ -1,10 +1,11 @@
 package com.levirgon.whereami.model;
 
-import javax.annotation.Generated;
 import com.google.gson.annotations.SerializedName;
 
+import javax.annotation.Generated;
+
 @Generated("com.robohorse.robopojogenerator")
-public class Location{
+public class PlaceLocation {
 
 	@SerializedName("lng")
 	private double lng;
@@ -31,7 +32,7 @@ public class Location{
 	@Override
  	public String toString(){
 		return 
-			"Location{" + 
+			"PlaceLocation{" +
 			"lng = '" + lng + '\'' + 
 			",lat = '" + lat + '\'' + 
 			"}";
