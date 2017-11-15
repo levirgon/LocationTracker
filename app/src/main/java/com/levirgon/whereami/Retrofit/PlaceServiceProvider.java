@@ -29,7 +29,7 @@ public class PlaceServiceProvider {
     public void requestPlaces(android.location.Location location, String sortBy, String placeType) {
 
         String locationText = location.getLatitude() + "," + location.getLongitude();
-        Call<Places> forecastCall = mService.getPlacesAroundLocation(WEB_SERVICE_KEY, locationText, sortBy, placeType);
+        Call<Places> forecastCall = mService.getPlacesByOrder(WEB_SERVICE_KEY, locationText, sortBy, placeType);
 
         forecastCall.enqueue(new Callback<Places>() {
             @Override

@@ -250,7 +250,11 @@ public class MainActivity extends AppCompatActivity {
         double lat = place.getGeometry().getPlaceLocation().getLat();
         double lng = place.getGeometry().getPlaceLocation().getLng();
 
-        //use the location.
+        Location destination = new Location("");
+        destination.setLatitude(lat);
+        destination.setLongitude(lng);
+
+
     }
 
     @Override

@@ -13,10 +13,18 @@ import retrofit2.http.Query;
 public interface PlacesService {
 
     @GET("json?")
-    Call<Places> getPlacesAroundLocation(
+    Call<Places> getPlacesByOrder(
             @Query("key") String api_key,
             @Query("location") String location,
             @Query("rankby") String sortBy,
+            @Query("type") String placeType
+    );
+
+    @GET("json?")
+    Call<Places> getPlacesByRadius(
+            @Query("key") String api_key,
+            @Query("location") String location,
+            @Query("radius") double radius,
             @Query("type") String placeType
     );
 }

@@ -112,7 +112,7 @@ public class UserLocationActivity extends AppCompatActivity implements GoogleApi
     private void startLocationUpdates() {
 
         mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(UPDATE_INTERVAL)
                 .setFastestInterval(FASTEST_INTERVAL);
 
