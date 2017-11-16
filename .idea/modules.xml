@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/LocationTracker.iml" filepath="$PROJECT_DIR$/LocationTracker.iml" />
       <module fileurl="file://$PROJECT_DIR$/WhereAmI.iml" filepath="$PROJECT_DIR$/WhereAmI.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
 </project>

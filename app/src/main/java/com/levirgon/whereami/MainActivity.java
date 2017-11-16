@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mPlacesList.setAdapter(mPlacesAdapter);
         }
+
     }
 
     public void onItemSelected(String text) {
