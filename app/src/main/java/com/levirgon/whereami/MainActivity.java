@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private CategoriesAdapter mAdapter;
     private PlacesAdapter mPlacesAdapter;
-    private Location mCurrentLocation;
+    private Location mCurrentLocation, destination;
     private Geocoder mGeocoder;
     private List<Address> mAddressList;
     private ProgressDialog progressDialog;
@@ -193,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mPlacesList.setAdapter(mPlacesAdapter);
         }
-
     }
 
     public void onItemSelected(String text) {

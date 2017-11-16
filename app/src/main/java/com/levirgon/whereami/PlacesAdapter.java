@@ -1,7 +1,9 @@
 package com.levirgon.whereami;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.levirgon.whereami.model.ResultsItem;
 import com.vstechlab.easyfonts.EasyFonts;
 
@@ -24,7 +27,8 @@ public class PlacesAdapter extends RecyclerView.Adapter {
     private final Context mContext;
     private List<ResultsItem> places;
     private Context parentContext;
-    private Location mCurrentLocation;
+    private Location mCurrentLocation,targetLocation;
+    LatLng placeLocation;
 
 
     public PlacesAdapter(Context context) {
@@ -116,7 +120,7 @@ public class PlacesAdapter extends RecyclerView.Adapter {
                 mIsOpen.setVisibility(View.GONE);
             }
 
-            Location targetLocation = new Location("");
+            targetLocation = new Location("");
             if (item.getGeometry().getPlaceLocation()!= null) {
                 targetLocation.setLatitude(item.getGeometry().getPlaceLocation().getLat());
                 targetLocation.setLongitude(item.getGeometry().getPlaceLocation().getLng());
@@ -139,6 +143,15 @@ public class PlacesAdapter extends RecyclerView.Adapter {
             ResultsItem place = places.get(pos);
             MainActivity activity = (MainActivity) mContext;
             activity.onPlaceSelected(place);
+            Intent intent = new Intent(activity,MapsActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putDouble("userLatitute",mCurrentLocation.getLatitude());
+            bundle.putDouble("userLongitute",mCurrentLocation.getLongitude());
+            bundle.putDouble("placeLatitute",targetLocation.getLatitude());
+            bundle.putDouble("placeLongitute",targetLocation.getLongitude());
+            intent.putExtras(bundle);
+            v.getContext().startActivity(intent);
+
         }
     }
 

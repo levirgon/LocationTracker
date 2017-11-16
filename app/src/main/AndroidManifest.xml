@@ -19,7 +19,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBSTOF6DwhooxWGQa4ShDnjX8Xyy_oDCM0" />
+            android:value="AIzaSyDt_agsL-VjfCQRH4aUzIzKFtMdz1nzLFI" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -31,7 +31,8 @@
         <activity android:name=".UserLocationActivity"></activity>
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps">
+        </activity>
     </application>
 
 </manifest>
