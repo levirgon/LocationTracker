@@ -1,6 +1,8 @@
 package com.levirgon.tutexplocation;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,13 +74,13 @@ public class CategoriesAdapter extends RecyclerView.Adapter {
             int pos = getAdapterPosition();
             String text = categories.get(pos);
             Toast.makeText(mContext,text,Toast.LENGTH_SHORT).show();
-            MainActivity activity = (MainActivity) mContext;
-            activity.onItemSelected(text);
-            /*Intent intent = new Intent(activity,MainActivity.class);
+            CategoryLoaderActivity activity = (CategoryLoaderActivity) mContext;
+            //activity.onItemSelected(text);
+            Intent intent = new Intent(activity,MainActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString("categoryText",text);
             intent.putExtras(bundle);
-            v.getContext().startActivity(intent);*/
+            v.getContext().startActivity(intent);
         }
     }
 

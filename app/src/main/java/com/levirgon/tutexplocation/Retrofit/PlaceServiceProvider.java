@@ -23,13 +23,14 @@ public class PlaceServiceProvider {
 
     private static final PlacesService mService = ServiceGenerator.createService(PlacesService.class);
     private static final String WEB_SERVICE_KEY = "AIzaSyBDAw4dPVVbyQdKBTwL7VL_gO8nFEA5eC0";
+    //AIzaSyBDAw4dPVVbyQdKBTwL7VL_gO8nFEA5eC0
 
     private static final String TAG = "PlaceServiceProvider";
 
-    public void requestPlaces(android.location.Location location, String sortBy, String placeType) {
+    public void requestPlaces(android.location.Location location, double sortBy, String placeType) {
 
         String locationText = location.getLatitude() + "," + location.getLongitude();
-        Call<Places> forecastCall = mService.getPlacesByOrder(WEB_SERVICE_KEY, locationText, sortBy, placeType);
+        Call<Places> forecastCall = mService.getPlacesByRadius(WEB_SERVICE_KEY, locationText, sortBy, placeType);
 
         forecastCall.enqueue(new Callback<Places>() {
             @Override
